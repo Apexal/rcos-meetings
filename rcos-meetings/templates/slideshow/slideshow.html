@@ -2,74 +2,74 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
+  <meta charset="utf-8">
 
-    <title>{{ title }} | RCOS Slides</title>
+  <title>{{ title }} | RCOS Slides</title>
 
-    <meta name="description" content="{{ presentation_description}}">
-    <meta name="author" content="{{ author or 'RCOS' }}">
+  <meta name="description" content="{{ presentation_description}}">
+  <meta name="author" content="{{ author or 'RCOS' }}">
 
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="/static/dist/reset.css" />
-    <link rel="stylesheet" href="/static/dist/reveal.css" />
+  <link rel="stylesheet" href="/static/dist/reset.css" />
+  <link rel="stylesheet" href="/static/dist/reveal.css" />
 
-    <!-- Theme used for syntax highlighting of code -->
-    <link id="highlight-theme" rel="stylesheet" href="/static/dist/theme/rcos.css" />
+  <!-- Theme used for syntax highlighting of code -->
+  <link id="highlight-theme" rel="stylesheet" href="/static/dist/theme/rcos.css" />
 </head>
 
 <body>
-    <div class="reveal">
-        <div class="slides">
-            {% include 'includes/slideshow/cover_page.html' %}
-            {% if announcements %}
-            {% include 'includes/slideshow/announcements.html' %}
-            {% endif %}
-            {% if agenda %}
-            {% include 'includes/slideshow/agenda.html' %}
-            {% endif %}
-            {% if markdown %}
-            <section data-markdown data-separator-vertical="^\n\n" data-separator-notes="^Note:">
-                <textarea data-template>
+  <div class="reveal">
+    <div class="slides">
+      {% include 'slideshow/includes/cover_page.html' %}
+      {% if announcements %}
+      {% include 'slideshow/includes/announcements.html' %}
+      {% endif %}
+      {% if agenda %}
+      {% include 'slideshow/includes/agenda.html' %}
+      {% endif %}
+      {% if markdown %}
+      <section data-markdown data-separator-vertical="^\n\n" data-separator-notes="^Note:">
+        <textarea data-template>
                     {{ markdown }}
                 </textarea>
-            </section>
-            {% elif markdown_url %}
-            <section data-markdown="{{markdown_url}}" data-separator-vertical="^\n\n" data-separator-notes="^Note:">
-            </section>
-            {% endif %}
-            {% if attendance_code or venue_qr_code %}
-            {% include 'includes/slideshow/attendance.html' %}
-            {% endif %}
-        </div>
+      </section>
+      {% elif markdown_url %}
+      <section data-markdown="{{markdown_url}}" data-separator-vertical="^\n\n" data-separator-notes="^Note:">
+      </section>
+      {% endif %}
+      {% if attendance_code or venue_qr_code %}
+      {% include 'slideshow/includes/attendance.html' %}
+      {% endif %}
     </div>
+  </div>
 
-    <!-- RevealJS -->
-    <script src="/static/dist/reveal.js"></script>
+  <!-- RevealJS -->
+  <script src="/static/dist/reveal.js"></script>
 
-    <!-- Markdown plugin -->
-    <script src="/static/plugin/markdown/markdown.js"></script>
+  <!-- Markdown plugin -->
+  <script src="/static/plugin/markdown/markdown.js"></script>
 
-    <!-- Notes plugin -->
-    <script src="/static/plugin/notes/notes.js"></script>
+  <!-- Notes plugin -->
+  <script src="/static/plugin/notes/notes.js"></script>
 
-    <!-- Highlight plugin -->
-    <script src="/static/plugin/highlight/highlight.js"></script>
+  <!-- Highlight plugin -->
+  <script src="/static/plugin/highlight/highlight.js"></script>
 
-    <script>
-        Reveal.initialize({
-            controls: true,
-            progress: true,
-            center: true,
-            hash: true,
+  <script>
+    Reveal.initialize({
+      controls: true,
+      progress: true,
+      center: true,
+      hash: true,
 
-            // Learn about plugins: https://revealjs.com/plugins/
-            plugins: [RevealNotes, RevealMarkdown, RevealHighlight]
-        });
-    </script>
+      // Learn about plugins: https://revealjs.com/plugins/
+      plugins: [RevealNotes, RevealMarkdown, RevealHighlight]
+    });
+  </script>
 </body>
 
 </html>
