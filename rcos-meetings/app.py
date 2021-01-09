@@ -24,7 +24,7 @@ cas = CAS(app, '/cas')
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
 # Used in templates
-app.config['APP_TITLE'] = 'RCOS Slides'
+app.config['APP_TITLE'] = 'RCOS Meetings'
 
 # Must be set to this to use RPI CAS
 app.config['CAS_SERVER'] = 'https://cas-auth.rpi.edu/cas'
@@ -33,6 +33,7 @@ app.config['CAS_SERVER'] = 'https://cas-auth.rpi.edu/cas'
 app.config['CAS_AFTER_LOGIN'] = 'index'
 
 API_BASE = os.environ['RCOS_API_BASE_URL']
+
 
 @app.before_request
 def before_request():
@@ -56,7 +57,9 @@ def add_template_locals():
 @app.route('/')
 def index():
     '''The homepage.'''
-    return render_template('index.html')
+    r = requests.get(f'{API_BASE}/meetings')
+    meetings = r.json()
+    return render_template('index.html', meetings=meetings)
 
 
 @app.route('/meeting/<int:meeting_id>')
@@ -65,7 +68,7 @@ def meeting(meeting_id: int):
     if r.status_code == 404:
         abort(404)
     meeting = r.json()
-    return render_template("slideshow.html", **generate.meeting_to_options(meeting))
+    return render_template('slideshow.html', **generate.meeting_to_options(meeting))
 
 
 @app.errorhandler(404)
@@ -89,4 +92,4 @@ def handle_exception(e):
     if app.env == 'production':
         e = 'Something went wrong... Please try again later.'
 
-    return render_template("error.html", error=e), 500
+    return render_template('error.html', error=e), 500

@@ -1,1 +1,1 @@
-web: gunicorn rcos-slides.app:app
+web: gunicorn rcos-meetings.app:app
