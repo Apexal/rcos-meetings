@@ -3,6 +3,8 @@ from flask import Flask, abort, flash, g, session, request, render_template, red
 from flask_cas import CAS, login_required
 from dotenv import load_dotenv
 from werkzeug.exceptions import HTTPException
+import requests
+from . import generate
 
 # Loads any variables from the .env file
 load_dotenv()
@@ -18,7 +20,7 @@ cas = CAS(app, '/cas')
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
 # Used in templates
-app.config['APP_TITLE'] = 'Flask + CAS'
+app.config['APP_TITLE'] = 'RCOS Slides'
 
 # Must be set to this to use RPI CAS
 app.config['CAS_SERVER'] = 'https://cas-auth.rpi.edu/cas'
@@ -71,14 +73,17 @@ def form():
         return redirect(url_for('form'))
 
 
-@app.route('/about')
-def about():
-    '''The about page.'''
-    return render_template('about.html')
+@app.route('/meeting/<int:meeting_id>')
+def meeting(meeting_id: int):
+    r = requests.get(f'http://127.0.0.1:8000/api/v1/meetings/{meeting_id}')
+    if r.status_code == 404:
+        abort(404)
+    meeting = r.json()
+    return render_template("slideshow.html", **generate.meeting_to_options(meeting))
 
 
 @app.errorhandler(404)
-def page_not_found():
+def page_not_found(e):
     '''Render 404 page.'''
     return render_template('404.html'), 404
 
