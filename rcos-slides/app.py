@@ -28,6 +28,7 @@ app.config['CAS_SERVER'] = 'https://cas-auth.rpi.edu/cas'
 # What route to go to after logging in
 app.config['CAS_AFTER_LOGIN'] = 'index'
 
+API_BASE = os.environ['RCOS_API_BASE_URL']
 
 @app.before_request
 def before_request():
@@ -54,30 +55,12 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/form', methods=['GET', 'POST'])
-@login_required
-def form():
-    '''Sample form route.'''
-
-    if request.method == 'GET':
-        # Render form page on GET request
-        return render_template('form.html')
-    else:
-        # Grab form values on POST request
-        if 'name' in request.form and request.form['name'] != '':
-            name = request.form['name']
-            flash('Hello, ' + name, 'info')
-        else:
-            abort(400)
-
-        return redirect(url_for('form'))
-
-
 @app.route('/meeting/<int:meeting_id>')
 def meeting(meeting_id: int):
-    r = requests.get(f'http://127.0.0.1:8000/api/v1/meetings/{meeting_id}')
+    r = requests.get(f'{API_BASE}/meetings/{meeting_id}')
     if r.status_code == 404:
         abort(404)
+    print(r)
     meeting = r.json()
     return render_template("slideshow.html", **generate.meeting_to_options(meeting))
 
