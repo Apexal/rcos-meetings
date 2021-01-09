@@ -11,7 +11,7 @@ def meeting_to_options(meeting):
     return {
         "title": meeting["title"] if meeting["title"] is not None else datetime.datetime.strftime(date, "%A, %B %-d %Y"),
         "subtitle": capitalized_meeting_type + (" | " + meeting["location"] if meeting["location"] else ""),
-        "announcements": ["Ya yeet", "Woo hoo", "wop wop wop"],
+        "announcements": ["Announcement 1", "Announcement 2", "Announcement 3"],
         "agenda": meeting["agenda"],
         "venue_qr_code": meeting["venue_qr_code"] if "venue_qr_code" in meeting else None,
         "attendance_code": meeting["attendance_code"],

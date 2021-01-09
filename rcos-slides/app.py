@@ -64,7 +64,6 @@ def meeting(meeting_id: int):
     r = requests.get(f'{API_BASE}/meetings/{meeting_id}')
     if r.status_code == 404:
         abort(404)
-    print(r)
     meeting = r.json()
     return render_template("slideshow.html", **generate.meeting_to_options(meeting))
 
