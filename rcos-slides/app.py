@@ -1,5 +1,6 @@
 import os
 from flask import Flask, abort, flash, g, session, request, render_template, redirect, url_for
+# from whitenoise import WhiteNoise
 from flask_cas import CAS, login_required
 from dotenv import load_dotenv
 from werkzeug.exceptions import HTTPException
@@ -11,6 +12,9 @@ load_dotenv()
 
 # Initialize Flask application
 app = Flask(__name__)
+
+# Serve static files on Heroku
+# app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/')
 
 # Initialize CAS authentication on the /cas endpoint
 # Adds the /cas/login and /cas/logout routes
