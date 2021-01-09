@@ -1,3 +1,4 @@
+from datetime import date, datetime
 import os
 from flask import Flask, abort, flash, g, session, request, render_template, redirect, url_for
 # from whitenoise import WhiteNoise
@@ -35,6 +36,11 @@ app.config['CAS_AFTER_LOGIN'] = 'index'
 API_BASE = os.environ['RCOS_API_BASE_URL']
 
 
+@app.template_filter()
+def format_datetime(date, format):
+    return datetime.strftime(date, format)
+
+
 @app.before_request
 def before_request():
     '''Runs before every request.'''
@@ -65,10 +71,29 @@ def index():
 @app.route('/meeting/<int:meeting_id>')
 def meeting(meeting_id: int):
     r = requests.get(f'{API_BASE}/meetings/{meeting_id}')
+    r.raise_for_status()
+    meeting = r.json()
+    start_datetime = datetime.strptime(
+        meeting["start_date_time"], "%Y-%m-%dT%H:%M:%S")
+    end_datetime = datetime.strptime(
+        meeting["end_date_time"], "%Y-%m-%dT%H:%M:%S")
+    meeting_type_display = generate.meeting_type_display(
+        meeting["meeting_type"])
+    return render_template('meeting.html',
+                           meeting=meeting,
+                           meeting_type_display=meeting_type_display,
+                           start_datetime=start_datetime,
+                           end_datetime=end_datetime
+                           )
+
+
+@app.route('/slideshow/<int:meeting_id>')
+def slideshow(meeting_id: int):
+    r = requests.get(f'{API_BASE}/meetings/{meeting_id}')
     if r.status_code == 404:
         abort(404)
     meeting = r.json()
-    return render_template('slideshow.html', **generate.meeting_to_options(meeting))
+    return render_template('slideshow/slideshow.html', **generate.meeting_to_options(meeting))
 
 
 @app.errorhandler(404)

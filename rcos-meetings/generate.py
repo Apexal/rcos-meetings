@@ -5,9 +5,16 @@ env = Environment(
     autoescape=select_autoescape(["html"])
 )
 
+
+def meeting_type_display(meeting_type: str):
+    return " ".join(map(str.capitalize, meeting_type.split("_")))
+
+
 def meeting_to_options(meeting):
-    date = datetime.datetime.strptime(meeting["start_date_time"], "%Y-%m-%dT%H:%M:%S.%f")
-    capitalized_meeting_type = " ".join(map(str.capitalize, meeting["meeting_type"].split("_")))
+    date = datetime.datetime.strptime(
+        meeting["start_date_time"], "%Y-%m-%dT%H:%M:%S")
+    capitalized_meeting_type = meeting_type_display(
+        meeting["meeting_type"])
     return {
         "title": meeting["title"] if meeting["title"] is not None else datetime.datetime.strftime(date, "%A, %B %-d %Y"),
         "subtitle": capitalized_meeting_type + (" | " + meeting["location"] if meeting["location"] else ""),
@@ -17,6 +24,7 @@ def meeting_to_options(meeting):
         "attendance_code": meeting["attendance_code"],
         "markdown": meeting["presentation_markdown"]
     }
+
 
 def render_slideshow_from_meeting(meeting):
     t = env.get_template("slideshow.html")
