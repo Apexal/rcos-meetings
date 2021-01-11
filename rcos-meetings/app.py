@@ -4,8 +4,10 @@ from flask import Flask, abort, flash, g, session, request, render_template, red
 # from whitenoise import WhiteNoise
 from flask_cas import CAS, login_required
 from dotenv import load_dotenv
+from werkzeug.datastructures import Headers
 from werkzeug.exceptions import HTTPException
 import requests
+from .utils import emtpy_to_none
 from . import generate
 
 # Loads any variables from the .env file
@@ -34,6 +36,9 @@ app.config['CAS_SERVER'] = 'https://cas-auth.rpi.edu/cas'
 app.config['CAS_AFTER_LOGIN'] = 'index'
 
 API_BASE = os.environ['RCOS_API_BASE_URL']
+API_HEADERS = {
+    'api_key': os.environ['API_KEY']
+}
 
 
 @app.template_filter()
@@ -65,10 +70,10 @@ def index():
     '''The homepage.'''
     r = requests.get(f'{API_BASE}/meetings')
     meetings = r.json()
-    return render_template('index.html', meetings=meetings)
+    return render_template('meetings/index.html', meetings=meetings)
 
 
-@app.route('/meeting/<int:meeting_id>')
+@app.route('/meetings/<int:meeting_id>')
 def meeting(meeting_id: int):
     r = requests.get(f'{API_BASE}/meetings/{meeting_id}')
     r.raise_for_status()
@@ -79,12 +84,35 @@ def meeting(meeting_id: int):
         meeting["end_date_time"], "%Y-%m-%dT%H:%M:%S")
     meeting_type_display = generate.meeting_type_display(
         meeting["meeting_type"])
-    return render_template('meeting.html',
+    return render_template('meetings/meeting.html',
                            meeting=meeting,
                            meeting_type_display=meeting_type_display,
                            start_datetime=start_datetime,
                            end_datetime=end_datetime
                            )
+
+
+@app.route('/meetings/<int:meeting_id>/edit', methods=['GET', 'POST'])
+def edit_meeting(meeting_id: int):
+    if request.method == 'GET':
+        r = requests.get(f'{API_BASE}/meetings/{meeting_id}')
+        r.raise_for_status()
+        meeting = r.json()
+
+        meeting_types = {
+            'large_group': 'Large Group',
+            'small_group': 'Small Group',
+            'mentors': 'Mentors',
+            'coordinators': 'Coordinators'
+        }
+        return render_template('meetings/edit_meeting.html', meeting=meeting, meeting_types=meeting_types)
+    elif request.method == 'POST':
+        updated_meeting = emtpy_to_none(request.form)
+        updated_meeting['agenda'] = request.form['agenda'].split(',')
+        r = requests.put(f'{API_BASE}/meetings/{meeting_id}',
+                         json=updated_meeting, headers=API_HEADERS)
+        r.raise_for_status()
+        return redirect(url_for('edit_meeting', meeting_id=meeting_id))
 
 
 @app.route('/slideshow/<int:meeting_id>')

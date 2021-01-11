@@ -15,7 +15,7 @@ function meetingToEvent(meeting, index) {
     start: meeting.start_date_time + "Z",
     end: meeting.end_date_time + "Z",
     backgroundColor: meetingColors[meeting.meeting_type],
-    url: '/meeting/' + meeting.meeting_id,
+    url: '/meetings/' + meeting.meeting_id,
     meeting
   }
 }

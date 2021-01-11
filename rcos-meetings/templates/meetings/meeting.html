@@ -41,7 +41,7 @@
             <i class="bi bi-play-btn-fill"></i>
             Recording
           </a>
-          <a href="/slideshow/{{ meeting.meeting_id }}" class="btn btn-primary">
+          <a href="{{ url_for('meeting', meeting_id=meeting.meeting_id) }}" class="btn btn-primary">
             <i class="bi bi-file-slides-fill"></i>
             Fullscreen
           </a>
@@ -51,11 +51,16 @@
 
     <div class="col-md-12 col-lg">
       <div class="ratio ratio-16x9">
-        <iframe src="/slideshow/{{ meeting.meeting_id }}" frameborder="0"></iframe>
+        <iframe src="{{ url_for('slideshow', meeting_id=meeting.meeting_id) }}" frameborder="0"></iframe>
       </div>
       <small class="text-muted"><kbd>Space</kbd> to move forward, <kbd>Shift+Space</kbd> to move backward,
         <kbd>Esc</kbd> for overview</small>
     </div>
   </div>
+  <hr>
+  <a href="{{ url_for('edit_meeting', meeting_id=meeting.meeting_id) }}" class="btn btn-warning">Edit Meeting</a>
+  <!-- <form action="{{ url_for('delete_meeting', meeting_id=meeting.meeting_id) }}">
+    <button class="btn btn-danger">Delete Meeting</button>
+  </form> -->
 </div>
 {% endblock %}

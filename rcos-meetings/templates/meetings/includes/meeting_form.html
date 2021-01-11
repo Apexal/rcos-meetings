@@ -1,0 +1,56 @@
+{% macro form_control(key, display) -%}
+<div class="mb-3">
+  <label for="meeting-{{ key }}" class="form-label">{{ display }}</label>
+  <input type="text" class="form-control" name="{{ key }}" id="meeting-{{ key }}"
+    placeholder="{{ meeting[key] or '<not set>' }}" value="{{ meeting[key] or '' }}">
+</div>
+{%- endmacro %}
+
+{% macro form_select(key, display, options) -%}
+<div class="mb-3">
+  <label for="meeting-{{ key }}" class="form-label">{{ display }}</label>
+  <select name="{{ key }}" id="meeting-{{ key }}" class="form-select">
+    {% for val, name in options.items() %}
+    <option value="{{ val }}" {% if meeting[key]==val %}selected{% endif %}>{{ name }}</option>
+    {% endfor %}
+  </select>
+</div>
+{%- endmacro %}
+
+{{ form_control('title', 'Title') }}
+
+{{ form_select('semester_id', 'Semester', {'202101': 'Spring 2021'}) }}
+
+{{ form_select('meeting_type', 'Type', meeting_types) }}
+
+<div class="mb-3">
+  <label for="meeting-start_date_time" class="form-label">Start</label>
+  <input type="datetime-local" class="form-control" name="start_date_time" id="meeting-start_date_time"
+    value="{{ meeting.start_date_time }}">
+</div>
+
+<div class="mb-3">
+  <label for="meeting-end_date_time" class="form-label">End</label>
+  <input type="datetime-local" class="form-control" name="end_date_time" id="meeting-end_date_time"
+    value="{{ meeting.end_date_time }}">
+</div>
+
+<div class="mb-3">
+  <label for="meeting-presentation_markdown" class="form-label">Presentation Markdown</label>
+  <textarea name="presentation_markdown" id="meeting-presentation_markdown" class="form-control"
+    rows="20">{{ meeting.presentation_markdown or '' }}</textarea>
+</div>
+
+<div class="mb-3">
+  <label for="meeting-agenda" class="form-label">Agenda</label>
+  <input type="text" id="meeting-agenda" name="agenda" class="form-control" value="{{ ', '.join(meeting.agenda) }}"
+    placeholder="{{ ', '.join(meeting.agenda) }}">
+</div>
+
+{{ form_control('attendance_code', 'Submitty Attendance Code') }}
+
+{{ form_control('host_username', 'Host Username') }}
+
+{{ form_control('recording_url', 'Recording URL') }}
+
+{{ form_control('location', 'Location') }}
