@@ -6,9 +6,9 @@ from flask_cas import CAS, login_required
 from dotenv import load_dotenv
 from werkzeug.datastructures import Headers
 from werkzeug.exceptions import HTTPException
-import requests
 from .utils import emtpy_to_none
 from . import generate
+from .api import api, API_BASE
 
 # Loads any variables from the .env file
 load_dotenv()
@@ -34,11 +34,6 @@ app.config['CAS_SERVER'] = 'https://cas-auth.rpi.edu/cas'
 
 # What route to go to after logging in
 app.config['CAS_AFTER_LOGIN'] = 'index'
-
-API_BASE = os.environ['RCOS_API_BASE_URL']
-API_HEADERS = {
-    'api_key': os.environ['API_KEY']
-}
 
 
 @app.template_filter()
@@ -68,22 +63,22 @@ def add_template_locals():
 @app.route('/')
 def index():
     '''The homepage.'''
-    r = requests.get(f'{API_BASE}/meetings')
+    r = api.get(f'{API_BASE}/meetings')
     meetings = r.json()
     return render_template('meetings/index.html', meetings=meetings)
 
 
 @app.route('/meetings/<int:meeting_id>')
 def meeting(meeting_id: int):
-    r = requests.get(f'{API_BASE}/meetings/{meeting_id}')
+    r = api.get(f'{API_BASE}/meetings?meeting_id=eq.{meeting_id}')
     r.raise_for_status()
-    meeting = r.json()
+    meeting = r.json()[0]
     start_datetime = datetime.strptime(
-        meeting["start_date_time"], "%Y-%m-%dT%H:%M:%S")
+        meeting['start_date_time'], '%Y-%m-%dT%H:%M:%S')
     end_datetime = datetime.strptime(
-        meeting["end_date_time"], "%Y-%m-%dT%H:%M:%S")
+        meeting['end_date_time'], '%Y-%m-%dT%H:%M:%S')
     meeting_type_display = generate.meeting_type_display(
-        meeting["meeting_type"])
+        meeting['meeting_type'])
     return render_template('meetings/meeting.html',
                            meeting=meeting,
                            meeting_type_display=meeting_type_display,
@@ -92,12 +87,13 @@ def meeting(meeting_id: int):
                            )
 
 
+# @app.route('/meetings/new')
 @app.route('/meetings/<int:meeting_id>/edit', methods=['GET', 'POST'])
 def edit_meeting(meeting_id: int):
     if request.method == 'GET':
-        r = requests.get(f'{API_BASE}/meetings/{meeting_id}')
+        r = api.get(f'{API_BASE}/meetings?meeting_id=eq.{meeting_id}')
         r.raise_for_status()
-        meeting = r.json()
+        meeting = r.json()[0]
 
         meeting_types = {
             'large_group': 'Large Group',
@@ -109,18 +105,28 @@ def edit_meeting(meeting_id: int):
     elif request.method == 'POST':
         updated_meeting = emtpy_to_none(request.form)
         updated_meeting['agenda'] = request.form['agenda'].split(',')
-        r = requests.put(f'{API_BASE}/meetings/{meeting_id}',
-                         json=updated_meeting, headers=API_HEADERS)
+        r = api.patch(f'{API_BASE}/meetings?meeting_id=eq.{meeting_id}',
+                      json=updated_meeting)
         r.raise_for_status()
         return redirect(url_for('edit_meeting', meeting_id=meeting_id))
 
 
+@app.route('/meetings/<int:meeting_id>/delete', methods=['POST'])
+def delete_meeting(meeting_id: int):
+    r = api.delete(
+        f'{API_BASE}/meetings?meeting_id=eq.{meeting_id}')
+    r.raise_for_status()
+    return redirect(url_for('index'))
+
+
 @app.route('/slideshow/<int:meeting_id>')
 def slideshow(meeting_id: int):
-    r = requests.get(f'{API_BASE}/meetings/{meeting_id}')
-    if r.status_code == 404:
+    r = api.get(f'{API_BASE}/meetings?meeting_id=eq.{meeting_id}')
+    r.raise_for_status()
+    try:
+        meeting = r.json()[0]
+    except IndexError:
         abort(404)
-    meeting = r.json()
     return render_template('slideshow/slideshow.html', **generate.meeting_to_options(meeting))
 
 
