@@ -2,6 +2,9 @@ from typing import Dict, Optional
 import requests
 import jwt
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 API_BASE = 'http://198.211.105.73:3000'
 JWT_SECRET = os.environ['API_KEY']
