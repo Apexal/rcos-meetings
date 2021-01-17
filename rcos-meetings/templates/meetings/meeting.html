@@ -5,8 +5,11 @@
     <div class="col-md-12 col-lg-4">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">{{ meeting.title }}</h5>
-          <h6 class="card-subtitle mb-4 text-muted">{{ meeting_type_display }} Meeting</h6>
+          <h5 class="card-title h4">{{ meeting.title }}</h5>
+          <h6 class="card-subtitle mb-4 text-muted">
+            {% if meeting.meeting_type in meeting_type_urls %}<a href="{{ meeting_type_urls[meeting.meeting_type] }}">{{
+              meeting_type_display }}</a>{% else %}{{ meeting_type_display }}{% endif %}
+            Meeting</h6>
           <div class="meeting-agenda">
             <strong>Agenda</strong>
             <ul>
@@ -15,10 +18,12 @@
               {% endfor %}
             </ul>
           </div>
+          {% if meeting.host_username %}
           <div class="mb-2">
             <i class="bi bi-person"></i>
-            <span>{{ meeting.host_username or "RCOS"}}</span>
+            <span>{{ meeting.host_username }}</span>
           </div>
+          {% endif %}
           <div class="d-flex align-items-center mb-2">
             <i class="bi bi-calendar-event me-1"></i>
 
@@ -58,9 +63,11 @@
     </div>
   </div>
   <hr>
-  <a href="{{ url_for('edit_meeting', meeting_id=meeting.meeting_id) }}" class="btn btn-warning">Edit Meeting</a>
-  <!-- <form action="{{ url_for('delete_meeting', meeting_id=meeting.meeting_id) }}">
-    <button class="btn btn-danger">Delete Meeting</button>
-  </form> -->
+  <div class="buttons">
+    <form action="{{ url_for('delete_meeting', meeting_id=meeting.meeting_id) }}" method="POST">
+      <a href="{{ url_for('edit_meeting', meeting_id=meeting.meeting_id) }}" class="btn btn-warning">Edit Meeting</a>
+      <button class="btn btn-danger">Delete Meeting</button>
+    </form>
+  </div>
 </div>
 {% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+  <h1 class="title">New Meeting</h1>
+
+  <form method="POST">
+    {% include 'meetings/includes/meeting_form.html' %}
+
+    <hr>
+    <button class="btn btn-primary">Create Meeting</button>
+  </form>
+</div>
+{% endblock %}

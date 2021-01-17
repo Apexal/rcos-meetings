@@ -8,7 +8,7 @@ from werkzeug.datastructures import Headers
 from werkzeug.exceptions import HTTPException
 from .utils import emtpy_to_none
 from . import generate
-from .api import api, API_BASE
+from .api import api, API_BASE, meeting_types, meeting_type_urls
 
 # Loads any variables from the .env file
 load_dotenv()
@@ -68,6 +68,21 @@ def index():
     return render_template('meetings/index.html', meetings=meetings)
 
 
+@app.route('/new', methods=['GET', 'POST'])
+def new_meeting():
+    if request.method == 'GET':
+        return render_template('meetings/new_meeting.html', meeting=dict(), meeting_types=meeting_types)
+    else:
+        new_meeting_json = emtpy_to_none(request.form)
+        new_meeting_json['agenda'] = request.form['agenda'].split(',')
+        r = api.post(f'{API_BASE}/meetings', json=new_meeting_json, headers={
+            'Prefer': 'return=representation'
+        })
+        new_meeting = r.json()[0]
+
+        return redirect(url_for('meeting', meeting_id=new_meeting['meeting_id']))
+
+
 @app.route('/meetings/<int:meeting_id>')
 def meeting(meeting_id: int):
     r = api.get(f'{API_BASE}/meetings?meeting_id=eq.{meeting_id}')
@@ -82,6 +97,7 @@ def meeting(meeting_id: int):
     return render_template('meetings/meeting.html',
                            meeting=meeting,
                            meeting_type_display=meeting_type_display,
+                           meeting_type_urls=meeting_type_urls,
                            start_datetime=start_datetime,
                            end_datetime=end_datetime
                            )
@@ -95,12 +111,6 @@ def edit_meeting(meeting_id: int):
         r.raise_for_status()
         meeting = r.json()[0]
 
-        meeting_types = {
-            'large_group': 'Large Group',
-            'small_group': 'Small Group',
-            'mentors': 'Mentors',
-            'coordinators': 'Coordinators'
-        }
         return render_template('meetings/edit_meeting.html', meeting=meeting, meeting_types=meeting_types)
     elif request.method == 'POST':
         updated_meeting = emtpy_to_none(request.form)
