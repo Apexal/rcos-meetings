@@ -1,3 +1,4 @@
+from typing import Dict, Optional
 import requests
 import jwt
 import os
@@ -21,3 +22,12 @@ meeting_type_urls = {
     'large_group': 'https://handbook.rcos.io/#/meetings/large_group_meetings',
     'small_group': 'https://handbook.rcos.io/#/meetings/small_group_meetings'
 }
+
+
+def get_meeting(meeting_id: int) -> Optional[Dict]:
+    r = api.get(f'{API_BASE}/meetings?meeting_id=eq.{meeting_id}')
+    results = r.json()
+    if len(results) == 0:
+        return None
+    else:
+        return results[0]

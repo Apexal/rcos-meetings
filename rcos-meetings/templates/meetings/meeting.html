@@ -7,7 +7,7 @@
         <div class="card-body">
           <h5 class="card-title h4">{{ meeting.title }}</h5>
           <h6 class="card-subtitle mb-4 text-muted">
-            {% if meeting.meeting_type in meeting_type_urls %}<a href="{{ meeting_type_urls[meeting.meeting_type] }}">{{
+            {% if meeting.type in meeting_type_urls %}<a target="_blank" href="{{ meeting_type_urls[meeting.type] }}">{{
               meeting_type_display }}</a>{% else %}{{ meeting_type_display }}{% endif %}
             Meeting</h6>
           <div class="meeting-agenda">
@@ -46,10 +46,6 @@
             <i class="bi bi-play-btn-fill"></i>
             Recording
           </a>
-          <a href="{{ url_for('meeting', meeting_id=meeting.meeting_id) }}" class="btn btn-primary">
-            <i class="bi bi-file-slides-fill"></i>
-            Fullscreen
-          </a>
         </div>
       </div>
     </div>
@@ -58,7 +54,8 @@
       <div class="ratio ratio-16x9">
         <iframe src="{{ url_for('slideshow', meeting_id=meeting.meeting_id) }}" frameborder="0"></iframe>
       </div>
-      <small class="text-muted"><kbd>Space</kbd> to move forward, <kbd>Shift+Space</kbd> to move backward,
+      <small class="text-muted"><kbd>Space</kbd> to move forward, <kbd>Shift+Space</kbd> to move backward, <kbd>F</kbd>
+        for fullscreen,
         <kbd>Esc</kbd> for overview</small>
     </div>
   </div>

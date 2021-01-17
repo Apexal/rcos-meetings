@@ -8,7 +8,7 @@ from werkzeug.datastructures import Headers
 from werkzeug.exceptions import HTTPException
 from .utils import emtpy_to_none
 from . import generate
-from .api import api, API_BASE, meeting_types, meeting_type_urls
+from .api import api, API_BASE, meeting_types, meeting_type_urls, get_meeting
 
 # Loads any variables from the .env file
 load_dotenv()
@@ -85,15 +85,15 @@ def new_meeting():
 
 @app.route('/meetings/<int:meeting_id>')
 def meeting(meeting_id: int):
-    r = api.get(f'{API_BASE}/meetings?meeting_id=eq.{meeting_id}')
-    r.raise_for_status()
-    meeting = r.json()[0]
+    meeting = get_meeting(meeting_id)
+    if meeting is None:
+        abort(404, 'Meeting not found')
     start_datetime = datetime.strptime(
         meeting['start_date_time'], '%Y-%m-%dT%H:%M:%S')
     end_datetime = datetime.strptime(
         meeting['end_date_time'], '%Y-%m-%dT%H:%M:%S')
     meeting_type_display = generate.meeting_type_display(
-        meeting['meeting_type'])
+        meeting['type'])
     return render_template('meetings/meeting.html',
                            meeting=meeting,
                            meeting_type_display=meeting_type_display,
@@ -107,9 +107,9 @@ def meeting(meeting_id: int):
 @app.route('/meetings/<int:meeting_id>/edit', methods=['GET', 'POST'])
 def edit_meeting(meeting_id: int):
     if request.method == 'GET':
-        r = api.get(f'{API_BASE}/meetings?meeting_id=eq.{meeting_id}')
-        r.raise_for_status()
-        meeting = r.json()[0]
+        meeting = get_meeting(meeting_id)
+        if meeting is None:
+            abort(404, 'Meeting not found')
 
         return render_template('meetings/edit_meeting.html', meeting=meeting, meeting_types=meeting_types)
     elif request.method == 'POST':
@@ -131,12 +131,9 @@ def delete_meeting(meeting_id: int):
 
 @app.route('/slideshow/<int:meeting_id>')
 def slideshow(meeting_id: int):
-    r = api.get(f'{API_BASE}/meetings?meeting_id=eq.{meeting_id}')
-    r.raise_for_status()
-    try:
-        meeting = r.json()[0]
-    except IndexError:
-        abort(404)
+    meeting = get_meeting(meeting_id)
+    if meeting is None:
+        abort(404, 'Meeting not found')
     return render_template('slideshow/slideshow.html', **generate.meeting_to_options(meeting))
 
 
