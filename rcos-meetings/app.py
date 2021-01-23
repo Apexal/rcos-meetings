@@ -4,11 +4,12 @@ from flask import Flask, abort, flash, g, session, request, render_template, red
 # from whitenoise import WhiteNoise
 from flask_cas import CAS, login_required
 from dotenv import load_dotenv
+from requests.models import HTTPError
 from werkzeug.datastructures import Headers
 from werkzeug.exceptions import HTTPException
 from .utils import emtpy_to_none
-from . import generate
-from .api import api, API_BASE, meeting_types, meeting_type_urls, get_meeting
+from . import TIMESTAMP_FORMAT, generate
+from .api import api, API_BASE, create_meeting, meeting_types, meeting_type_urls, get_meeting, update_meeting
 
 # Loads any variables from the .env file
 load_dotenv()
@@ -75,10 +76,13 @@ def new_meeting():
     else:
         new_meeting_json = emtpy_to_none(request.form)
         new_meeting_json['agenda'] = request.form['agenda'].split(',')
-        r = api.post(f'{API_BASE}/meetings', json=new_meeting_json, headers={
-            'Prefer': 'return=representation'
-        })
-        new_meeting = r.json()[0]
+        new_meeting_json['is_remote'] = True
+        new_meeting_json['meeting_url'] = 'https://rensselaer.webex.com/meet/turnew2'
+        try:
+            new_meeting = create_meeting(new_meeting_json)
+        except HTTPError as err:
+            print(err.response.json())
+            abort(500)
 
         return redirect(url_for('meeting', meeting_id=new_meeting['meeting_id']))
 
@@ -89,9 +93,9 @@ def meeting(meeting_id: int):
     if meeting is None:
         abort(404, 'Meeting not found')
     start_datetime = datetime.strptime(
-        meeting['start_date_time'], '%Y-%m-%dT%H:%M:%S')
+        meeting['start_date_time'], TIMESTAMP_FORMAT)
     end_datetime = datetime.strptime(
-        meeting['end_date_time'], '%Y-%m-%dT%H:%M:%S')
+        meeting['end_date_time'], TIMESTAMP_FORMAT)
     meeting_type_display = generate.meeting_type_display(
         meeting['type'])
     return render_template('meetings/meeting.html',

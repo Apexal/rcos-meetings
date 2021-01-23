@@ -12,15 +12,15 @@ const meetingColors = {
 function meetingToEvent(meeting, index) {
   return {
     title: (meeting.title || 'Meeting'),
-    start: meeting.start_date_time + 'Z',
-    end: meeting.end_date_time + 'Z',
+    start: meeting.start_date_time,
+    end: meeting.end_date_time,
     backgroundColor: meetingColors[meeting.meeting_type],
     url: '/meetings/' + meeting.meeting_id,
     meeting
   }
 }
 
-const API_BASE = 'http://198.211.105.73:3000'
+const API_BASE = 'https://api.rcos.io'
 
 document.addEventListener('DOMContentLoaded', function () {
   const calendarEl = document.getElementById('calendar');

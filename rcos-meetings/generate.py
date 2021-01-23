@@ -1,5 +1,6 @@
 import datetime
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from . import TIMESTAMP_FORMAT
 env = Environment(
     loader=FileSystemLoader('templates'),
     autoescape=select_autoescape(['html'])
@@ -12,7 +13,7 @@ def meeting_type_display(meeting_type: str):
 
 def meeting_to_options(meeting):
     date = datetime.datetime.strptime(
-        meeting['start_date_time'], '%Y-%m-%dT%H:%M:%S')
+        meeting['start_date_time'], TIMESTAMP_FORMAT)
     capitalized_meeting_type = meeting_type_display(
         meeting['type'])
     return {
