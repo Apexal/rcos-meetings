@@ -70,6 +70,7 @@ def index():
 
 
 @app.route('/new', methods=['GET', 'POST'])
+@login_required
 def new_meeting():
     if request.method == 'GET':
         return render_template('meetings/new_meeting.html', meeting=dict(), meeting_types=meeting_types)
@@ -109,6 +110,7 @@ def meeting(meeting_id: int):
 
 # @app.route('/meetings/new')
 @app.route('/meetings/<int:meeting_id>/edit', methods=['GET', 'POST'])
+@login_required
 def edit_meeting(meeting_id: int):
     if request.method == 'GET':
         meeting = get_meeting(meeting_id)
@@ -126,6 +128,7 @@ def edit_meeting(meeting_id: int):
 
 
 @app.route('/meetings/<int:meeting_id>/delete', methods=['POST'])
+@login_required
 def delete_meeting(meeting_id: int):
     r = api.delete(
         f'{API_BASE}/meetings?meeting_id=eq.{meeting_id}')
