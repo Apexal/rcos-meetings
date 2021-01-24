@@ -80,7 +80,7 @@ def index():
 @admin_required
 def new_meeting():
     if request.method == 'GET':
-        return render_template('meetings/new_meeting.html', meeting=dict(), meeting_types=meeting_types)
+        return render_template('meetings/new_meeting.html', meeting={ 'meeting_url': 'https://rensselaer.webex.com/meet/turnew2' }, meeting_types=meeting_types)
     else:
         new_meeting_json = emtpy_to_none(request.form)
         new_meeting_json['agenda'] = request.form['agenda'].split(',')
@@ -128,7 +128,9 @@ def edit_meeting(meeting_id: int):
         return render_template('meetings/edit_meeting.html', meeting=meeting, meeting_types=meeting_types)
     elif request.method == 'POST':
         updated_meeting = emtpy_to_none(request.form)
-        updated_meeting['agenda'] = request.form['agenda'].split(',')
+        updated_meeting['is_public'] = 'is_public' in request.form
+        updated_meeting['agenda'] = list(map(str.strip, request.form['agenda'].split(',')))
+        updated_meeting['is_remote'] = request.form['meeting_url'] is not None
         r = api.patch(f'{API_BASE}/meetings?meeting_id=eq.{meeting_id}',
                       json=updated_meeting)
         r.raise_for_status()
