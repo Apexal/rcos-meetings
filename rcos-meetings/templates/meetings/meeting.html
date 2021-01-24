@@ -50,14 +50,17 @@
         </div>
       </div>
     </div>
-
     <div class="col-md-12 col-lg">
+      {% if meeting.external_presentation_url %}
+      <a href="{{ meeting.external_presentation_url }}" target="_blank">External Presentation</a>
+      {% else %}
       <div class="ratio ratio-16x9">
         <iframe src="{{ url_for('slideshow', meeting_id=meeting.meeting_id) }}" frameborder="0"></iframe>
       </div>
       <small class="text-muted"><kbd>Space</kbd> to move forward, <kbd>Shift+Space</kbd> to move backward, <kbd>F</kbd>
         for fullscreen,
         <kbd>Esc</kbd> for overview</small>
+      {% endif %}
     </div>
   </div>
   <hr>
