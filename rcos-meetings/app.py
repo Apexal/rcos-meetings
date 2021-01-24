@@ -1,6 +1,6 @@
 from datetime import date, datetime
 import os
-from flask import Flask, abort, flash, g, session, request, render_template, redirect, url_for
+from flask import Flask, abort, flash, g, session, request, render_template, redirect, url_for, jsonify
 # from whitenoise import WhiteNoise
 from flask_cas import CAS, login_required
 from dotenv import load_dotenv
@@ -29,7 +29,7 @@ cas = CAS(app, '/cas')
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
 # Used in templates
-app.config['APP_TITLE'] = 'RCOS Meetings'
+app.config['APP_TITLE'] = 'RCOS Meeting Management'
 
 # Must be set to this to use RPI CAS
 app.config['CAS_SERVER'] = 'https://cas-auth.rpi.edu/cas'
@@ -68,12 +68,22 @@ def add_template_locals():
 
 
 @app.route('/')
+@login_required
+@admin_required
 def index():
     '''The homepage.'''
     r = api.get(f'{API_BASE}/meetings')
     meetings = r.json()
     return render_template('meetings/index.html', meetings=meetings)
 
+@app.route('/meetings/json')
+@login_required
+@admin_required
+def meetings_json():
+    '''Send ALL meetings.'''
+    r = api.get(f'{API_BASE}/meetings')
+    meetings = r.json()
+    return jsonify(meetings)
 
 @app.route('/new', methods=['GET', 'POST'])
 @login_required

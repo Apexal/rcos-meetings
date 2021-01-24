@@ -20,8 +20,6 @@ function meetingToEvent(meeting, index) {
   }
 }
 
-const API_BASE = 'https://api.rcos.io'
-
 document.addEventListener('DOMContentLoaded', function () {
   const calendarEl = document.getElementById('calendar');
   const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -29,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
     timeZone: 'America/New_York',
     weekends: false,
     events: function (info, successCallback, failureCallback) {
-      fetch(API_BASE + '/public_meetings')
+      fetch('/meetings/json')
         .then(res => res.json())
         .then(meetings => successCallback(meetings.map(meetingToEvent)))
         .catch(failureCallback)

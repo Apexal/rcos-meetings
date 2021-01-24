@@ -3,25 +3,42 @@
 <div class="container">
   <h1 class="display-3 mb-4">RCOS Meetings</h1>
   <div class="row">
-    <div class="col-xs-12 col-md-12 col-lg-8">
+    <div class="col-xs-12 col-md-12 col-lg-7">
       <div id="calendar"></div>
     </div>
-    <div class="col-xs-12 col-md-12 col-lg-4">
-      <div class="this-week-meetings">
-        <h2>This Week</h2>
-        {% for meeting in meetings %}
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">{{ meeting.title }}</h5>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      <div class="next-week-meetings">
+    <div class="col-xs-12 col-md-12 col-lg-5">
+      <h2>All Meetings</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Is Public</th>
+            <th>Start</th>
+            <th>End</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for meeting in meetings %}
+          <tr>
+            <td>
+              <a href="{{ url_for('meeting', meeting_id=meeting.meeting_id) }}">
 
-      </div>
+                {{ meeting.title or '-' }}
+              </a>
+            </td>
+            <td>{{ meeting.type }}</td>
+            <td>{{ 'Yes' if meeting.is_public else 'No' }}</td>
+            <td>{{ meeting.start_date_time }}</td>
+            <td>{{ meeting.end_date_time }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
+  <hr>
+  <a href="/new" class="btn btn-success">New Meeting</a>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.0/main.min.js"></script>
 <script src="/static/js/index.js"></script>
