@@ -9,7 +9,8 @@ from werkzeug.datastructures import Headers
 from werkzeug.exceptions import HTTPException
 from .utils import emtpy_to_none
 from . import TIMESTAMP_FORMAT, generate
-from .api import api, API_BASE, create_meeting, meeting_types, meeting_type_urls, get_meeting, update_meeting
+from .decorators import admin_required
+from .api import api, API_BASE, create_meeting, get_user_and_enrollment, meeting_types, meeting_type_urls, get_meeting, update_meeting
 
 # Loads any variables from the .env file
 load_dotenv()
@@ -48,6 +49,11 @@ def before_request():
 
     # Everything added to g can be accessed during the request
     g.logged_in = cas.username is not None
+    user, enrollment = get_user_and_enrollment(cas.username.lower()) if g.logged_in else (None, None)
+    g.user = user
+    g.enrollment = enrollment
+    
+    g.is_user_admin = (user and user['role'] == 'faculty_advisor') or (enrollment and enrollment['is_coordinator'])
 
 
 @app.context_processor
@@ -71,6 +77,7 @@ def index():
 
 @app.route('/new', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def new_meeting():
     if request.method == 'GET':
         return render_template('meetings/new_meeting.html', meeting=dict(), meeting_types=meeting_types)
@@ -111,6 +118,7 @@ def meeting(meeting_id: int):
 # @app.route('/meetings/new')
 @app.route('/meetings/<int:meeting_id>/edit', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def edit_meeting(meeting_id: int):
     if request.method == 'GET':
         meeting = get_meeting(meeting_id)
@@ -129,6 +137,7 @@ def edit_meeting(meeting_id: int):
 
 @app.route('/meetings/<int:meeting_id>/delete', methods=['POST'])
 @login_required
+@admin_required
 def delete_meeting(meeting_id: int):
     r = api.delete(
         f'{API_BASE}/meetings?meeting_id=eq.{meeting_id}')

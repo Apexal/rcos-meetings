@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 import requests
 import jwt
 import os
@@ -54,3 +54,15 @@ def update_meeting(meeting_id: int, updates: Dict) -> Dict:
     r.raise_for_status()
     new_meeting = r.json()[0]
     return new_meeting
+
+def get_user_and_enrollment(username: str) -> Tuple[Optional[Dict], Optional[Dict]]:
+    r = api.get(f'{API_BASE}/users', params={
+        'username': 'eq.' + username,
+        'select': '*,enrollments(*)',
+        'enrollments.semester_id': 'eq.202101'
+    }, headers={
+        'Accept': 'application/vnd.pgrst.object+json'
+    })
+    r.raise_for_status()
+    user = r.json()
+    return (user, user['enrollments'][0] if len(user['enrollments']) else None)
